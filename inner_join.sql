@@ -104,7 +104,7 @@ VALUES
     (107, 1), (107, 2), (107, 3), -- Emma: Fiction, Classic, Romance
     (108, 1), (108, 2), (108, 6); -- For Whom the Bell Tolls: Fiction, Classic, Adventure
 
--- Get books with their authors and categories using GROUP_CONCAT
+-- Get books with their authors and categories using GROUP_CONCAT IN MYSQL
 SELECT b.title, 
        a.first_name, 
        a.last_name, 
@@ -114,6 +114,17 @@ JOIN authors a ON b.author_id = a.author_id
 JOIN book_categories bc ON b.book_id = bc.book_id
 JOIN categories c ON bc.category_id = c.category_id
 GROUP BY b.book_id;
+--INPOSTGRESQL
+SELECT b.title, 
+       a.first_name, 
+       a.last_name, 
+       STRING_AGG(c.category_name, ', ') AS categories
+FROM books b
+JOIN authors a ON b.author_id = a.author_id
+JOIN book_categories bc ON b.book_id = bc.book_id
+JOIN categories c ON bc.category_id = c.category_id
+GROUP BY b.book_id, b.title, a.first_name, a.last_name;
+
 
 -- Example with join condition in ON clause
 SELECT b.title, a.last_name
@@ -129,15 +140,21 @@ INNER JOIN authors a ON b.author_id = a.author_id
 WHERE b.publication_year < 1950 
   AND a.birth_year < 1900;
   
--- Example with date functions - books published more than 70 years ago
+-- Example with date functions - books published more than 70 years ago mysql
 SELECT b.title, a.last_name
 FROM books b
 INNER JOIN authors a ON b.author_id = a.author_id
 WHERE YEAR(CURDATE()) - b.publication_year > 70;
+
+-- Example with date functions - books published more than 70 years ago postgresql
+SELECT b.title, a.last_name
+FROM books b
+INNER JOIN authors a ON b.author_id = a.author_id
+WHERE EXTRACT(YEAR FROM CURRENT_DATE) - b.publication_year > 70;
  
 /*
 Note: INNER JOIN excludes rows with NULL values in the join columns. If you want to include rows with NULL values,
-you would need to use LEFT JOIN or RIGHT JOIN (which we'll cover in later sections).
+you would need to use LEFT JOIN or RIGHT JOIN 
 */
  
 -- Find authors who have written more than one book using HAVING clause
